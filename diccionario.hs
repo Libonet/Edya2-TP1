@@ -1,6 +1,10 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+
 data TTree k v = Node k (Maybe v ) (TTree k v ) (TTree k v ) (TTree k v )
                   | Leaf k v
-                  | E deriving Show
+                  | E
 
 -- devuelve el valor asociado a una clave
 search :: Ord k => [k] -> TTree k v -> Maybe v
@@ -68,4 +72,18 @@ t = Node 'r' Nothing E (Node 'e' (Just 16) (Node 'a' Nothing E (Leaf 's' 1) E)
                                                               E)
                                           E)
 
+
+class Dic k v d | d -> k v where
+  vacio :: d
+  insertar :: Ord k => [k] -> v -> d -> d
+  buscar :: Ord k => [k] -> d -> Maybe v
+  eliminar :: Ord k => [k] -> d -> d
+  claves :: Ord k => d -> [[k]] 
+
+instance Dic k v (TTree k v) where
+  vacio = E
+  insertar = insert
+  buscar = search
+  eliminar = delete
+  claves = keys
 
