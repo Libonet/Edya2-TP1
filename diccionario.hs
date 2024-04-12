@@ -2,15 +2,22 @@ data TTree k v = Node k (Maybe v ) (TTree k v ) (TTree k v ) (TTree k v )
                   | Leaf k v
                   | E
 
+-- devuelve el valor asociado a una clave
 search :: Ord k => [k] -> TTree k v -> Maybe v
 search _ E = Nothing
-search [] (Leaf x val) = Just val
-search [] (Node x mVal l m r) = mVal
-search (c:cs) (Leaf x val) = Nothing
-search (c:cs) (Node x mVal l m r) | c<x  = search cs l
-                                  | c>x  = search cs r
-                                  | c==x = search cs m
-                                  | otherwise = Nothing
+search [] (Leaf k val) = Just val
+search [] (Node k mVal l m r) = mVal
+search (c:cs) (Leaf k val) = Nothing
+search (c:cs) (Node k mVal l m r) | c<k  = search cs l
+                                  | c>k  = search cs r
+                                  | otherwise = search cs m
+
+-- dado un arbol devuelve una lista ordenada con las claves del mismo
+keys :: TTree k v -> [[k]]
+keys E = []
+keys (Leaf k v) = [[k]]
+keys (Node k Nothing l m r) = map (k :) (keys m) ++ keys l ++ keys r
+keys (Node k val l m r) = [k] : map (k :) (keys m) ++ keys l ++ keys r
 
 t = Node 'r' Nothing E (Node 'e' (Just 16) (Node 'a' Nothing E (Leaf 's' 1) E)
                                           (Node 'o' (Just 2) (Leaf 'd' 9)
