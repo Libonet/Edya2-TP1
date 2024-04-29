@@ -42,8 +42,8 @@ insert list@(c:cs) x (Node k mval l m r) | c>k = Node k mval l m (insert list x 
 keys :: TTree k v -> [[k]]
 keys E = []
 keys (Leaf k v) = [[k]]
-keys (Node k Nothing l m r) = keys l ++ keys r ++ map (k :) (keys m)
-keys (Node k val l m r) = [k] : keys l ++ keys r ++ map (k :) (keys m)
+keys (Node k Nothing l m r) = keys l ++ map (k :) (keys m) ++ keys r
+keys (Node k val l m r) = keys l ++ [[k]] ++ map (k :) (keys m) ++ keys r
 
 
 
