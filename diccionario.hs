@@ -63,19 +63,6 @@ delete lista@(x:xs) (Node clave valor l c r) | x > clave = borrar clave valor l 
                                               borrar clave (Just valor) E E E = Leaf clave valor
                                               borrar clave mVal l c r = Node clave mVal l c r
 
--- fenixAux (x:xs) (y:ys) tree = fenixAux xs ys (insert x y tree)
--- 
--- fenix :: TTree k v -> TTree k v -- devuelve un TTree sin casos del tipo (Node clave Nothing l E r)
--- fenix tree = fenixAux claves valores tree
---             where
---              claves = keys tree
---              valores = map search claves
-
--- betterDelete arbol borrar = foldr (s insert (unJust . g search arbol)) E [x | x <- keys arbol, x /= borrar]
---                     where
---                       s f g x = f x (g x)
---                       unJust (Just x) = x
---                       g f x y = f y x
 
 t = Node 'r' Nothing E (Node 'e' (Just 16) (Node 'a' Nothing E (Leaf 's' 1) E)
                                           (Node 'o' (Just 2) (Leaf 'd' 9)
@@ -103,3 +90,30 @@ instance Ord k => Dic [k] v (TTree k v) where
   buscar = search
   eliminar = delete
   claves = keys
+
+
+{- Funciones interesantes: -}
+
+-- fenixAux :: Ord k => [[k]] -> [v] -> TTree k v -> TTree k v
+-- fenixAux [] [] tree         = tree
+-- fenixAux (x:xs) (y:ys) tree = fenixAux xs ys (insert x y tree)
+--
+-- devuelve un TTree sin casos del tipo (Node clave Nothing l E r)
+-- fenix :: Ord k => TTree k v -> TTree k v 
+-- fenix tree = fenixAux claves valores tree
+--             where
+--              auxClaves = keys tree
+--              (left, right) = splitAt ((length auxClaves + 1) `div` 2) auxClaves
+--              merge [] ys = ys
+--              merge (x:xs) ys = x:merge ys xs
+--              claves = merge (reverse left) right
+--              unJust [] = []
+--              unJust ((Just x):xs) = x : unJust xs
+--              valores = unJust (map (`search` tree) claves)
+
+-- Una forma interesante, pero ineficiente, de eliminar un elemento del arbol
+-- betterDelete arbol borrar = foldr (s insert (unJust . g search arbol)) E [x | x <- keys arbol, x /= borrar]
+--                     where
+--                       s f g x = f x (g x)
+--                       unJust (Just x) = x
+--                       g f x y = f y x
