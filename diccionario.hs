@@ -6,6 +6,7 @@ data TTree k v = Node k (Maybe v ) (TTree k v ) (TTree k v ) (TTree k v )
                   | Leaf k v
                   | E deriving Show
 
+
 -- devuelve el valor asociado a una clave
 search :: Ord k => [k] -> TTree k v -> Maybe v
 search _ E = Nothing
@@ -18,6 +19,7 @@ search str@(c:cs) (Node k mVal l m r) | c<k  = search str l
                                       | otherwise = case cs of
                                             [] -> mVal
                                             _  -> search cs m
+
 
 -- insert agrega un par (clave, valor) a un arbol. 
 -- Si la clave ya esta en el arbol, actualiza su valor.
@@ -37,6 +39,7 @@ insert list@(c:cs) x (Node k mval l m r) | c>k = Node k mval l m (insert list x 
                                          | otherwise = case cs of
                                                   [] -> Node k (Just x) l m r
                                                   _  -> Node k mval l (insert cs x m) r
+
 
 -- dado un arbol devuelve una lista ordenada con las claves del mismo
 keys :: TTree k v -> [[k]]
@@ -61,9 +64,24 @@ delete lista@(x:xs) (Node clave valor l c r) | x > clave = borrar clave valor l 
                                              where
                                               borrar _ Nothing E E E = E
                                               borrar clave (Just valor) E E E = Leaf clave valor
+                                              borrar clave Nothing l E E = l
+                                              borrar clave Nothing E E r = r
+                                              borrar clave Nothing l E r = Node kMin vMin l cMin (delMin r)
                                               borrar clave mVal l c r = Node clave mVal l c r
+                                              (kMin, vMin, cMin) = minTTree r
 
 
+minTTree :: TTree k v -> (k, Maybe v, TTree k v)
+minTTree (Leaf k v) = (k, Just v, E)
+minTTree (Node k v E c _) = (k, v, c)
+minTTree (Node _ _ l _ _) = minTTree l
+
+delMin :: TTree k v -> TTree k v
+delMin (Node _ _ E _ r) = r
+delMin (Node k v l c r) = Node k v (delMin l) c r
+delMin _ = E
+
+{- arboles de prueba -}
 t = Node 'r' Nothing E (Node 'e' (Just 16) (Node 'a' Nothing E (Leaf 's' 1) E)
                                           (Node 'o' (Just 2) (Leaf 'd' 9)
                                                               E
@@ -77,6 +95,7 @@ t = Node 'r' Nothing E (Node 'e' (Just 16) (Node 'a' Nothing E (Leaf 's' 1) E)
 
 j = Node 'h' (Just 3) E (Leaf 'o' 4) E
 
+-- e)
 class Dic k v d | d -> k v where
   vacio :: d
   insertar :: Ord k => k -> v -> d -> d
